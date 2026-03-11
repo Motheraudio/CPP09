@@ -3,6 +3,7 @@
 #include <fstream>
 #include <limits>
 #include <stdexcept>
+#include <string.h>
 BitcoinExchange::BitcoinExchange() {}
 
 BitcoinExchange::BitcoinExchange(char *resolve) {
@@ -25,6 +26,44 @@ BitcoinExchange &BitcoinExchange::operator=(const BitcoinExchange &obj) {
   this->_Cdb = obj._Cdb;
   this->_Cresolve = obj._Cresolve;
   return (*this);
+}
+/*                                      */
+static bool hasValidSeparators(std::string date) {
+  size_t spaces = 0;
+  size_t minuses = 0;
+  for (int i = 0; date[i]; i++) {
+    if (date[i] == ' ') {
+      spaces++;
+      if (date[i + 1] != '\0')
+        return (false);
+    }
+    if (date[i] == '-')
+      minuses++;
+  }
+  if (spaces != 1 && minuses != 2)
+    return (false);
+  else
+    return (true);
+}
+
+static bool isValidDate(const std::string &date) {
+  if (!hasValidSeparators(date))
+    return (false);
+  char *copy = new char[date.length()];
+  strcpy(copy, date.c_str());
+  char *rest;
+  int year = std::strtol(strtok(copy, "-"), &rest, 10);
+  if (*rest != '\0')
+    return (delete[] copy, false);
+  int month = std::strtol(strtok(NULL, "-"), &rest, 10);
+  if (*rest != '\0')
+    return (delete[] copy, false);
+  int day = std::strtol(strtok(NULL, " "), &rest, 10);
+  if (*rest != '\0')
+    return (delete[] copy, false);
+  delete[] copy;
+  // check for valid calendar dates
+  return true;
 }
 /*														*/
 
@@ -75,26 +114,9 @@ void BitcoinExchange::evaluateEntries() {
   rit = this->_Cresolve.begin();
   rite = this->_Cresolve.end();
   while (rit != rite) {
+    if (!isValidDate(rit->first))
+      std::cout << "Error: not a valid separator -> " << rit->first
+                << std::endl;
+    rit++;
   }
-}
-/*                                      */
-static bool isValidDate(std::string &date) {
-  if (date.length() != DATE_SIZE || date[date.length() - 1] != ' ')
-    return (false);
-  if (date[4] != '-' || date[7] != '-' || date[10] != ' ')
-    return (false);
-  if (date[0] == '-' || date[5] == '-' || date[8] == '-')
-    return (false);
-  char *rest;
-  std::string year = date.substr(0, 4);
-  std::string month = date.substr(5, 2);
-  std::string day = date.substr(8, 2);
-  if (month == "00" || day == "00")
-    return (false);
-  if (std::strtol(year.c_str(), &rest, 10) && *rest != '\0')
-    return (false);
-  if (std::strtol(month.c_str(), &rest, 10) > 12 && *rest != '\0')
-    return (false);
-  if (std::strtol(day.c_str(), &rest, 10) > 12 && *rest != '\0')
-    return (false);
 }

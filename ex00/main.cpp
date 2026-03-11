@@ -4,7 +4,8 @@ int main(int argc, char **argv) {
     std::cout << "Error: Could not open file" << std::endl;
   try {
     BitcoinExchange exchange(argv[1]);
-    exchange.printMap();
+    // exchange.printMap();
+    exchange.evaluateEntries();
   } catch (std::exception &e) {
     std::cout << e.what() << std::endl;
   }
