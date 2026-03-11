@@ -75,7 +75,7 @@ OBJDIR = obj
 OBJECTFILES = $(addprefix $(OBJDIR)/, $(OBJECTS))
 HEADERS = BitcoinExchange.hpp
 CXX = c++
-CXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXFLAGS = -std=c++98
 $(OBJDIR)/%.o: %.cpp $(HEADERS)
 	@mkdir -p $(OBJDIR)
 	@$(CXX) $(CXFLAGS) -c $< -o $@
@@ -86,6 +86,9 @@ $(NAME): $(OBJECTFILES)
 
 all: $(NAME)
 
+$(NAME): $(OBJECTFILES)
+	@$(CXX) $(CXFLAGS)  $(OBJECTFILES) -o $(NAME)
+	@printf "$$RAT"
 clean:
 	@rm -rf $(OBJDIR)
 	@printf "$$GOODBYE"
