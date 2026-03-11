@@ -2,21 +2,22 @@
 
 #include <iostream>
 #include <map>
+#define DATE_SIZE 11
 class BitcoinExchange {
 public:
-  BitcoinExchange();
   BitcoinExchange(char *resolve);
   BitcoinExchange(const BitcoinExchange &obj);
   ~BitcoinExchange();
-
   BitcoinExchange &operator=(const BitcoinExchange &obj);
+
   void printMap();
+  void evaluateEntries();
 
 private:
-  std::map<std::string, double> _Cdb;
-  std::map<std::string, double> _Cresolve;
-  std::map<std::string, double> createMap();
-  std::map<std::string, double> createMap(char *resolve);
-};
+  BitcoinExchange();
 
-std::ostream &operator<<(std::ostream &os, const BitcoinExchange &obj);
+  std::map<std::string, std::string> _Cdb;
+  std::map<std::string, std::string> _Cresolve;
+  std::map<std::string, std::string> createMap();
+  std::map<std::string, std::string> createMap(char *resolve);
+};
