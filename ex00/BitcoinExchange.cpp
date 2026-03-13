@@ -158,8 +158,31 @@ void BitcoinExchange::evaluateEntries() {
     out = isValidNumber(rit->second);
     if (out != rit->second)
       std::cout << out << std::endl;
-    // else
-    //  match containers
+    else {
+      std::map<std::string, std::string>::iterator locate =
+          this->_Cdb.lower_bound(rit->first);
+      if (strtol(rit->first.substr(0, rit->first.find("-")).c_str(), NULL, 10) >
+          2022)
+        std::cout << rit->first << "-> "
+                  << strtod(this->_Cdb.rbegin()->second.c_str(), NULL) *
+                         strtod(&rit->second.c_str()[1], NULL)
+                  << std::endl;
+      else if (locate->first == rit->first)
+        std::cout << rit->first << "-> "
+                  << strtod(locate->second.c_str(), NULL) *
+                         strtod(&rit->second.c_str()[1], NULL)
+                  << std::endl;
+      else if (locate == _Cdb.begin())
+        std::cout << "Error: Bad input -> " << rit->first << std::endl;
+      else {
+        locate--;
+        std::cout << rit->first << "-> "
+                  << strtod(locate->second.c_str(), NULL) *
+                         strtod(&rit->second.c_str()[1], NULL)
+                  << std::endl;
+      }
+    }
+
     rit++;
   }
 }

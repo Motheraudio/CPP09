@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <map>
-#define MONTHS_DAYS_LEN 6
 class BitcoinExchange {
 public:
   BitcoinExchange(char *resolve);
