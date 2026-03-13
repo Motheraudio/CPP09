@@ -140,10 +140,6 @@ void BitcoinExchange::printMap() {
   }
 }
 void BitcoinExchange::evaluateEntries() {
-  // std::map<std::string, std::string>::iterator dbit;
-  // std::map<std::string, std::string>::iterator dbite;
-  // dbit = this->_Cdb.begin();
-  // dbite = this->_Cdb.end();
   std::map<std::string, std::string>::iterator rit;
   std::map<std::string, std::string>::iterator rite;
   rit = this->_Cresolve.begin();
