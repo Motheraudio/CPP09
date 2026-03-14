@@ -4,11 +4,11 @@
 #include <stack>
 class RPN {
 public:
-  RPN();
-  ~RPN();
   static int FetchResult(std::string expression);
 
 private:
+  RPN();
+  ~RPN();
   RPN(const RPN &other);
   RPN &operator=(const RPN &other);
 };
