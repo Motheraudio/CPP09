@@ -2,7 +2,7 @@
 #include "iostream"
 int main(int argc, char **argv) {
   if (argc == 1) {
-    std::cerr << "usage: ./Pmergeme [ints]" << std::endl;
+    std::cerr << "usage: ./PmergeMe [ints]" << std::endl;
     return 1;
   }
   std::string args;
