@@ -8,10 +8,16 @@ PmergeMe::PmergeMe() {}
 
 PmergeMe::~PmergeMe() {}
 
-static bool AisBiggerThanB(int a, int b) {
+static bool AisBiggerThanB(int a, const int b) {
   g_comparisons++;
   return (a > b);
 }
+// static bool CompOrder(const int &a, const int &b) {
+//   g_comparisons++;
+//   return (a < b);
+// }
+/******************************/
+/*******************************/
 
 static void PrintVec(std::vector<int> &v) {
   std::vector<int>::iterator it = v.begin();
@@ -61,6 +67,7 @@ static void SwapPairs(std::vector<int>::iterator it, int sig_mem) {
   for (int i = 0; i < sig_mem; i++)
     std::iter_swap(it - i, it + sig_mem - i);
 }
+
 static void RecSort(std::vector<int> &v, int sig_mem) {
   std::vector<int>::iterator it = v.begin() + (sig_mem - 1);
   std::vector<int> main;
@@ -74,13 +81,20 @@ static void RecSort(std::vector<int> &v, int sig_mem) {
     it += sig_mem * 2;
     i++;
   }
-  // std::cout << "AFTER, with sig_mem = " << sig_mem << std::endl;
   PrintVec(v);
+  // std::cout << "AFTER, with sig_mem = " << sig_mem << std::endl;
+  // PrintVec(v);
   if (i == 0)
     return;
-  CreateSeqs(v, pend, main, sig_mem);
+  // PrintVec(pend);
+  // PrintVec(main);
   // if (!pend.empty()) then insert
-  RecSort(v, sig_mem * 2); // or the v instead of main? we'll se
+  RecSort(v, sig_mem * 2); // or the v instead of main? we'll see
+  CreateSeqs(v, pend, main, sig_mem);
+  // insert!
+  v = main; // i actually need to insert the carry on
+  // std::cout << g_comparisons << std::endl;
+  PrintVec(v);
   return;
 }
 void PmergeMe::SortAll(std::string args) {
