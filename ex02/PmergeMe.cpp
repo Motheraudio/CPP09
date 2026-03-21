@@ -25,11 +25,11 @@ static void PrintVec(std::vector<int> &v) {
 static void CreateSeqs(std::vector<int> &v, std::vector<int> &pend,
                        std::vector<int> &main, int sig_mem) {
   // insert b1 and a1 into main
-  int leftover = v.size() % (sig_mem * 2);
-  for (int i = 0; i < sig_mem * 2; i++) {
-    main.push_back(v[i]);
-  }
-  unsigned int i = sig_mem * 2;
+  unsigned int leftover = v.size() % (sig_mem * 2);
+  // for (int i = 0; i < sig_mem * 2; i++) {
+  //   main.push_back(v[i]);
+  // }
+  unsigned int i = 0;
   int y = 0;
   while (i < (v.size() - leftover)) {
     while (y < sig_mem) {
@@ -45,10 +45,14 @@ static void CreateSeqs(std::vector<int> &v, std::vector<int> &pend,
     y = 0;
     i += sig_mem;
   }
-  // std::cout << "MAIN: ";
-  // PrintVec(main);
-  // std::cout << "PEND: ";
-  // PrintVec(pend);
+  while (i < v.size()) {
+    pend.push_back(v[i]);
+    i++;
+  }
+  std::cout << "MAIN: ";
+  PrintVec(main);
+  std::cout << "PEND: ";
+  PrintVec(pend);
 }
 // sig_mem: offset to the significant member of a pair to compare for recursion
 // call with sig_mem=1 first time
@@ -75,9 +79,8 @@ static void RecSort(std::vector<int> &v, int sig_mem) {
   if (i == 0)
     return;
   CreateSeqs(v, pend, main, sig_mem);
-  // if (!pend.empty())
-  // insert
-  RecSort(v, sig_mem * 2);
+  // if (!pend.empty()) then insert
+  RecSort(v, sig_mem * 2); // or the v instead of main? we'll se
   return;
 }
 void PmergeMe::SortAll(std::string args) {
