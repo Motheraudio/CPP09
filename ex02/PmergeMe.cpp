@@ -167,8 +167,6 @@ static void SwapPairs(std::vector<int>::iterator it, int sig_mem) {
 
 static void RecSort(std::vector<int> &v, int sig_mem) {
   std::vector<int>::iterator it = v.begin() + (sig_mem - 1);
-  std::vector<int> main;
-  std::vector<int> pend;
   unsigned int i = 0;
   // std::cout << "BEFORE, with sig_mem = " << sig_mem << std::endl;
   while (i != v.size() / (2 * sig_mem) && it + sig_mem != v.end()) {
@@ -187,6 +185,8 @@ static void RecSort(std::vector<int> &v, int sig_mem) {
   // PrintVec(main);
   // if (!pend.empty())
   RecSort(v, sig_mem * 2); // or the v instead of main? we'll see
+  std::vector<int> main;
+  std::vector<int> pend;
   CreateSeqs(v, pend, main, sig_mem);
   Insert(main, pend, sig_mem);
   v = main; // i actually need to insert the carry on
