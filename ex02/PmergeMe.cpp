@@ -17,6 +17,102 @@ static bool AisBiggerThanB(int a, const int b) {
 //   return (a < b);
 // }
 /******************************/
+
+static std::vector<int> BuildJacob(int pblocks) {
+  std::vector<int> jacob;
+  int first = 0;
+  int second = 1;
+  while (1) // skipping 0 and 1, i inserted b1 already
+  {
+    int next = second + 2 * first;
+    first = second;
+    second = next;
+    if (second > pblocks)
+      break;
+    if (second > 1)
+      jacob.push_back(second);
+  }
+  std::vector<int> insertionmap;
+  std::vector<bool> addedindex(pblocks + 1,
+                               false); // STARTING INDEX 1! B1 INSERTED!
+  int prevboundary = 1;
+  for (unsigned int i = 0; i < jacob.size(); i++) { // filling insertion indexes
+    int top = jacob[i];
+    int bot = prevboundary + 1;
+    for (int j = top; j >= bot; j--) {
+      insertionmap.push_back(j);
+      addedindex[j] = true;
+    }
+    prevboundary = jacob[i];
+  }
+  for (int i = pblocks; i >= 1; i--) // rest of indexes
+  {
+    if (!addedindex[i])
+      insertionmap.push_back(i);
+  }
+  return insertionmap;
+}
+static void Insert(std::vector<int> &main, std::vector<int> &pend,
+                   int sig_mem) {
+  if (pend.empty())
+    return;
+  std::vector<int> partnervalues;
+  int blocks = main.size() / sig_mem;
+  for (int i = 0; i < blocks; i++) {
+    partnervalues.push_back(main[i * sig_mem + sig_mem - 1]);
+  }
+  main.insert(main.begin(), pend.begin(),
+              pend.begin() +
+                  sig_mem); // b1 inserted, 1 less block needed to insert
+  int pblocks = pend.size() / sig_mem;
+  bool hasleftover;
+  if (pend.size() % sig_mem != 0)
+    hasleftover = true;
+  else
+    hasleftover = false;
+  std::vector<int> jacobs = BuildJacob(pblocks - 1);
+  int top_bound = main.size() / sig_mem;
+  for (unsigned int i = 0; i < jacobs.size(); i++) {
+    int j = jacobs[i];
+    int pendsig_mem = pend[j * sig_mem + sig_mem - 1];
+    int partner_val = partnervalues[j];
+    for (unsigned int k = 0; k < main.size() / sig_mem; k++) {
+      if (main[k * sig_mem + sig_mem - 1] == partner_val) {
+        top_bound = k + 1;
+        break;
+      }
+    }
+    int low_bound = 0;
+    while (low_bound < top_bound) // this is binary search
+    {
+      int mid = (low_bound + top_bound) / 2;
+      int mid_num = main[mid * sig_mem + sig_mem - 1];
+      if (AisBiggerThanB(pendsig_mem, mid_num))
+        low_bound = mid + 1;
+      else
+        top_bound = mid;
+    }
+    main.insert(main.begin() + low_bound * sig_mem, pend.begin() + j * sig_mem,
+                pend.begin() + j * sig_mem + sig_mem);
+  }
+  if (hasleftover) {
+    int leftoverstart = pblocks * sig_mem;
+    int leftovercurent = pend.back();
+
+    int low_bound = 0;
+    int top_bound = main.size() / sig_mem;
+    while (low_bound < top_bound) {
+      int mid = (low_bound + top_bound) / 2;
+      int mid_num = main[mid * sig_mem + sig_mem - 1];
+      if (AisBiggerThanB(leftovercurent, mid_num))
+        low_bound = mid + 1;
+      else
+        top_bound = mid;
+    }
+    main.insert(main.begin() + low_bound * sig_mem,
+                pend.begin() + leftoverstart, pend.end());
+  }
+}
 /*******************************/
 
 static void PrintVec(std::vector<int> &v) {
@@ -30,8 +126,8 @@ static void PrintVec(std::vector<int> &v) {
 
 static void CreateSeqs(std::vector<int> &v, std::vector<int> &pend,
                        std::vector<int> &main, int sig_mem) {
-  // insert b1 and a1 into main
   unsigned int leftover = v.size() % (sig_mem * 2);
+  // insert b1 and a1 into main
   // for (int i = 0; i < sig_mem * 2; i++) {
   //   main.push_back(v[i]);
   // }
@@ -88,10 +184,10 @@ static void RecSort(std::vector<int> &v, int sig_mem) {
     return;
   // PrintVec(pend);
   // PrintVec(main);
-  // if (!pend.empty()) then insert
+  // if (!pend.empty())
   RecSort(v, sig_mem * 2); // or the v instead of main? we'll see
   CreateSeqs(v, pend, main, sig_mem);
-  // insert!
+  Insert(main, pend, sig_mem);
   v = main; // i actually need to insert the carry on
   // std::cout << g_comparisons << std::endl;
   PrintVec(v);
@@ -112,6 +208,7 @@ void PmergeMe::SortAll(std::string args) {
     dq.push_back(curr);
   }
   RecSort(v, 1);
+  std::cout << g_comparisons << std::endl;
   // Sortdq
   // print
 }
