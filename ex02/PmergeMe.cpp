@@ -73,6 +73,7 @@ static void Insert(std::vector<int> &main, std::vector<int> &pend,
   std::vector<int> jacobs = BuildJacob(pblocks - 1);
   int top_bound = main.size() / sig_mem;
   for (unsigned int i = 0; i < jacobs.size(); i++) {
+    top_bound = main.size() / sig_mem;
     int j = jacobs[i];
     int pendsig_mem = pend[j * sig_mem + sig_mem - 1];
     int partner_val = partnervalues[j];
