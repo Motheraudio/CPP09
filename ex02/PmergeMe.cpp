@@ -36,7 +36,7 @@ static std::vector<int> BuildJacob(int pblocks) {
   std::vector<bool> addedindex(pblocks + 1,
                                false); // STARTING INDEX 1! B1 INSERTED!
   int prevboundary = 1;
-  for (unsigned int i = 0; i < jacob.size(); i++) { // filling insertion indexes
+  for (unsigned int i = 0; i < jacob.size(); i++) { // filling insertion
     int top = jacob[i];
     int bot = prevboundary + 1;
     for (int j = top; j >= bot; j--) {
@@ -52,68 +52,69 @@ static std::vector<int> BuildJacob(int pblocks) {
   }
   return insertionmap;
 }
-static void Insert(std::vector<int> &main, std::vector<int> &pend,
-                   int sig_mem) {
-  if (pend.empty())
-    return;
-  std::vector<int> partnervalues;
-  int blocks = main.size() / sig_mem;
-  for (int i = 0; i < blocks; i++) {
-    partnervalues.push_back(main[i * sig_mem + sig_mem - 1]);
-  }
-  main.insert(main.begin(), pend.begin(),
-              pend.begin() +
-                  sig_mem); // b1 inserted, 1 less block needed to insert
-  int pblocks = pend.size() / sig_mem;
-  bool hasleftover;
-  if (pend.size() % sig_mem != 0)
-    hasleftover = true;
-  else
-    hasleftover = false;
-  std::vector<int> jacobs = BuildJacob(pblocks - 1);
-  int top_bound = main.size() / sig_mem;
-  for (unsigned int i = 0; i < jacobs.size(); i++) {
-    top_bound = main.size() / sig_mem;
-    int j = jacobs[i];
-    int pendsig_mem = pend[j * sig_mem + sig_mem - 1];
-    int partner_val = partnervalues[j];
-    for (unsigned int k = 0; k < main.size() / sig_mem; k++) {
-      if (main[k * sig_mem + sig_mem - 1] == partner_val) {
-        top_bound = k + 1;
-        break;
-      }
-    }
-    int low_bound = 0;
-    while (low_bound < top_bound) // this is binary search
-    {
-      int mid = (low_bound + top_bound) / 2;
-      int mid_num = main[mid * sig_mem + sig_mem - 1];
-      if (AisBiggerThanB(pendsig_mem, mid_num))
-        low_bound = mid + 1;
-      else
-        top_bound = mid;
-    }
-    main.insert(main.begin() + low_bound * sig_mem, pend.begin() + j * sig_mem,
-                pend.begin() + j * sig_mem + sig_mem);
-  }
-  if (hasleftover) {
-    int leftoverstart = pblocks * sig_mem;
-    int leftovercurent = pend.back();
-
-    int low_bound = 0;
-    int top_bound = main.size() / sig_mem;
-    while (low_bound < top_bound) {
-      int mid = (low_bound + top_bound) / 2;
-      int mid_num = main[mid * sig_mem + sig_mem - 1];
-      if (AisBiggerThanB(leftovercurent, mid_num))
-        low_bound = mid + 1;
-      else
-        top_bound = mid;
-    }
-    main.insert(main.begin() + low_bound * sig_mem,
-                pend.begin() + leftoverstart, pend.end());
-  }
-}
+// static void Insert(std::vector<int> &main, std::vector<int> &pend,
+//                    int sig_mem) {
+//   if (pend.empty())
+//     return;
+//   std::vector<int> partnervalues;
+//   int blocks = main.size() / sig_mem;
+//   for (int i = 0; i < blocks; i++) {
+//     partnervalues.push_back(main[i * sig_mem + sig_mem - 1]);
+//   }
+//   main.insert(main.begin(), pend.begin(),
+//               pend.begin() +
+//                   sig_mem); // b1 inserted, 1 less block needed to insert
+//   int pblocks = pend.size() / sig_mem;
+//   bool hasleftover;
+//   if (pend.size() % sig_mem != 0)
+//     hasleftover = true;
+//   else
+//     hasleftover = false;
+//   std::vector<int> jacobs = BuildJacob(pblocks - 1);
+//   int top_bound = main.size() / sig_mem;
+//   for (unsigned int i = 0; i < jacobs.size(); i++) {
+//     top_bound = main.size() / sig_mem;
+//     int j = jacobs[i];
+//     int pendsig_mem = pend[j * sig_mem + sig_mem - 1];
+//     int partner_val = partnervalues[j];
+//     for (unsigned int k = 0; k < main.size() / sig_mem; k++) {
+//       if (main[k * sig_mem + sig_mem - 1] == partner_val) {
+//         top_bound = k + 1;
+//         break;
+//       }
+//     }
+//     int low_bound = 0;
+//     while (low_bound < top_bound) // this is binary search
+//     {
+//       int mid = (low_bound + top_bound) / 2;
+//       int mid_num = main[mid * sig_mem + sig_mem - 1];
+//       if (AisBiggerThanB(pendsig_mem, mid_num))
+//         low_bound = mid + 1;
+//       else
+//         top_bound = mid;
+//     }
+//     main.insert(main.begin() + low_bound * sig_mem, pend.begin() + j *
+//     sig_mem,
+//                 pend.begin() + j * sig_mem + sig_mem);
+//   }
+//   if (hasleftover) {
+//     int leftoverstart = pblocks * sig_mem;
+//     int leftovercurent = pend.back();
+//
+//     int low_bound = 0;
+//     int top_bound = main.size() / sig_mem;
+//     while (low_bound < top_bound) {
+//       int mid = (low_bound + top_bound) / 2;
+//       int mid_num = main[mid * sig_mem + sig_mem - 1];
+//       if (AisBiggerThanB(leftovercurent, mid_num))
+//         low_bound = mid + 1;
+//       else
+//         top_bound = mid;
+//     }
+//     main.insert(main.begin() + low_bound * sig_mem,
+//                 pend.begin() + leftoverstart, pend.end());
+//   }
+// }
 /*******************************/
 
 static void PrintVec(std::vector<int> &v) {
@@ -129,10 +130,10 @@ static void CreateSeqs(std::vector<int> &v, std::vector<int> &pend,
                        std::vector<int> &main, int sig_mem) {
   unsigned int leftover = v.size() % (sig_mem * 2);
   // insert b1 and a1 into main
-  // for (int i = 0; i < sig_mem * 2; i++) {
-  //   main.push_back(v[i]);
-  // }
-  unsigned int i = 0;
+  for (int i = 0; i < sig_mem * 2; i++) {
+    main.push_back(v[i]);
+  }
+  unsigned int i = sig_mem * 2;
   int y = 0;
   while (i < (v.size() - leftover)) {
     while (y < sig_mem) {
@@ -165,6 +166,10 @@ static void SwapPairs(std::vector<int>::iterator it, int sig_mem) {
     std::iter_swap(it - i, it + sig_mem - i);
 }
 
+static void Insertion(std::vector<int> &main, std::vector<int> &pend,
+                      int sig_mem) {
+  std::vector<int> insertionmap = BuildJacob(main.size() / sig_mem - 1);
+}
 static void RecSort(std::vector<int> &v, int sig_mem) {
   std::vector<int>::iterator it = v.begin() + (sig_mem - 1);
   unsigned int i = 0;
@@ -188,7 +193,8 @@ static void RecSort(std::vector<int> &v, int sig_mem) {
   std::vector<int> main;
   std::vector<int> pend;
   CreateSeqs(v, pend, main, sig_mem);
-  Insert(main, pend, sig_mem);
+  Insertion(pend, main, sig_mem);
+  // Insert(main, pend, sig_mem);
   v = main; // i actually need to insert the carry on
   // std::cout << g_comparisons << std::endl;
   PrintVec(v);
