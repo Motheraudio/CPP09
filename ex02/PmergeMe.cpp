@@ -88,6 +88,9 @@ static void Insertion(std::vector<int> &main, std::vector<int> &pend,
   std::vector<int>::iterator low = main.begin();
   for (int i = 1; i < insertionmap.size(); i++) {
     std::vector<int>::iterator high = low + (insertionmap[i] - 1) * sig_mem;
+    for (int y = insertionmap[i]; y != insertionmap[i - 1]; y--) {
+      // remeber! y is position NOT INDEX, always access with y - 1
+    }
   }
   // std::vector<int>::iterator high = main.begin() + 2 * sig_mem;
   // SKIP index 0, already inserted on creation
