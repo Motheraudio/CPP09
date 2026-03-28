@@ -1,5 +1,6 @@
 #include "PmergeMe.hpp"
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <sstream>
 int g_comparisons = 0;
@@ -17,104 +18,16 @@ static bool AisBiggerThanB(int a, const int b) {
 //   return (a < b);
 // }
 /******************************/
-
-static std::vector<int> BuildJacob(int pblocks) {
-  std::vector<int> jacob;
-  int first = 0;
-  int second = 1;
-  while (1) // skipping 0 and 1, i inserted b1 already
-  {
-    int next = second + 2 * first;
-    first = second;
-    second = next;
-    if (second > pblocks)
-      break;
-    if (second > 1)
-      jacob.push_back(second);
+std::vector<int> GenJacobsSec(int elements) {
+  int curr = 1;
+  std::vector<int> jacobs;
+  jacobs.push_back(curr);
+  for (int i = 1; i < elements; i++) {
+    curr = (std::pow(2, i + 2) + std::pow(-1, i + 1)) / 3;
+    jacobs.push_back(curr);
   }
-  std::vector<int> insertionmap;
-  std::vector<bool> addedindex(pblocks + 1,
-                               false); // STARTING INDEX 1! B1 INSERTED!
-  int prevboundary = 1;
-  for (unsigned int i = 0; i < jacob.size(); i++) { // filling insertion
-    int top = jacob[i];
-    int bot = prevboundary + 1;
-    for (int j = top; j >= bot; j--) {
-      insertionmap.push_back(j);
-      addedindex[j] = true;
-    }
-    prevboundary = jacob[i];
-  }
-  for (int i = pblocks; i >= 1; i--) // rest of indexes
-  {
-    if (!addedindex[i])
-      insertionmap.push_back(i);
-  }
-  return insertionmap;
+  return jacobs;
 }
-// static void Insert(std::vector<int> &main, std::vector<int> &pend,
-//                    int sig_mem) {
-//   if (pend.empty())
-//     return;
-//   std::vector<int> partnervalues;
-//   int blocks = main.size() / sig_mem;
-//   for (int i = 0; i < blocks; i++) {
-//     partnervalues.push_back(main[i * sig_mem + sig_mem - 1]);
-//   }
-//   main.insert(main.begin(), pend.begin(),
-//               pend.begin() +
-//                   sig_mem); // b1 inserted, 1 less block needed to insert
-//   int pblocks = pend.size() / sig_mem;
-//   bool hasleftover;
-//   if (pend.size() % sig_mem != 0)
-//     hasleftover = true;
-//   else
-//     hasleftover = false;
-//   std::vector<int> jacobs = BuildJacob(pblocks - 1);
-//   int top_bound = main.size() / sig_mem;
-//   for (unsigned int i = 0; i < jacobs.size(); i++) {
-//     top_bound = main.size() / sig_mem;
-//     int j = jacobs[i];
-//     int pendsig_mem = pend[j * sig_mem + sig_mem - 1];
-//     int partner_val = partnervalues[j];
-//     for (unsigned int k = 0; k < main.size() / sig_mem; k++) {
-//       if (main[k * sig_mem + sig_mem - 1] == partner_val) {
-//         top_bound = k + 1;
-//         break;
-//       }
-//     }
-//     int low_bound = 0;
-//     while (low_bound < top_bound) // this is binary search
-//     {
-//       int mid = (low_bound + top_bound) / 2;
-//       int mid_num = main[mid * sig_mem + sig_mem - 1];
-//       if (AisBiggerThanB(pendsig_mem, mid_num))
-//         low_bound = mid + 1;
-//       else
-//         top_bound = mid;
-//     }
-//     main.insert(main.begin() + low_bound * sig_mem, pend.begin() + j *
-//     sig_mem,
-//                 pend.begin() + j * sig_mem + sig_mem);
-//   }
-//   if (hasleftover) {
-//     int leftoverstart = pblocks * sig_mem;
-//     int leftovercurent = pend.back();
-//
-//     int low_bound = 0;
-//     int top_bound = main.size() / sig_mem;
-//     while (low_bound < top_bound) {
-//       int mid = (low_bound + top_bound) / 2;
-//       int mid_num = main[mid * sig_mem + sig_mem - 1];
-//       if (AisBiggerThanB(leftovercurent, mid_num))
-//         low_bound = mid + 1;
-//       else
-//         top_bound = mid;
-//     }
-//     main.insert(main.begin() + low_bound * sig_mem,
-//                 pend.begin() + leftoverstart, pend.end());
-//   }
-// }
 /*******************************/
 
 static void PrintVec(std::vector<int> &v) {
@@ -153,10 +66,10 @@ static void CreateSeqs(std::vector<int> &v, std::vector<int> &pend,
     pend.push_back(v[i]);
     i++;
   }
-  std::cout << "MAIN: ";
-  PrintVec(main);
-  std::cout << "PEND: ";
-  PrintVec(pend);
+  // std::cout << "MAIN: ";
+  // PrintVec(main);
+  // std::cout << "PEND: ";
+  // PrintVec(pend);
 }
 // sig_mem: offset to the significant member of a pair to compare for recursion
 // call with sig_mem=1 first time
@@ -168,7 +81,18 @@ static void SwapPairs(std::vector<int>::iterator it, int sig_mem) {
 
 static void Insertion(std::vector<int> &main, std::vector<int> &pend,
                       int sig_mem) {
-  std::vector<int> insertionmap = BuildJacob(main.size() / sig_mem - 1);
+  if (pend.empty())
+    return;
+  int leftovers = pend.size() % sig_mem;
+  std::vector<int> insertionmap = GenJacobsSec(pend.size() / sig_mem);
+  std::vector<int>::iterator low = main.begin();
+  for (int i = 1; i < insertionmap.size(); i++) {
+    std::vector<int>::iterator high = low + (insertionmap[i] - 1) * sig_mem;
+  }
+  // std::vector<int>::iterator high = main.begin() + 2 * sig_mem;
+  // SKIP index 0, already inserted on creation
+
+  PrintVec(insertionmap);
 }
 static void RecSort(std::vector<int> &v, int sig_mem) {
   std::vector<int>::iterator it = v.begin() + (sig_mem - 1);
@@ -181,7 +105,7 @@ static void RecSort(std::vector<int> &v, int sig_mem) {
     it += sig_mem * 2;
     i++;
   }
-  PrintVec(v);
+  // PrintVec(v);
   // std::cout << "AFTER, with sig_mem = " << sig_mem << std::endl;
   // PrintVec(v);
   if (i == 0)
@@ -194,10 +118,9 @@ static void RecSort(std::vector<int> &v, int sig_mem) {
   std::vector<int> pend;
   CreateSeqs(v, pend, main, sig_mem);
   Insertion(pend, main, sig_mem);
-  // Insert(main, pend, sig_mem);
   v = main; // i actually need to insert the carry on
   // std::cout << g_comparisons << std::endl;
-  PrintVec(v);
+  // PrintVec(v);
   return;
 }
 void PmergeMe::SortAll(std::string args) {

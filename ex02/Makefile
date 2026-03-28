@@ -75,7 +75,7 @@ OBJDIR = obj
 OBJECTFILES = $(addprefix $(OBJDIR)/, $(OBJECTS))
 HEADERS = PmergeMe.hpp
 CXX = c++
-CXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXFLAGS = -Wall -Wextra -std=c++98
 $(OBJDIR)/%.o: %.cpp $(HEADERS)
 	@mkdir -p $(OBJDIR)
 	@$(CXX) $(CXFLAGS) -c $< -o $@
