@@ -13,10 +13,14 @@ static bool AisBiggerThanB(int a, const int b) {
   g_comparisons++;
   return (a > b);
 }
-// static bool CompOrder(const int &a, const int &b) {
-//   g_comparisons++;
-//   return (a < b);
-// }
+static bool AisBiggerOrEqualThanB(int a, const int b) {
+  g_comparisons++;
+  return (a >= b);
+}
+static bool CompOrder(const int &a, const int &b) {
+  g_comparisons++;
+  return (a < b);
+}
 /******************************/
 std::vector<int> GenJacobsSec(int elements) {
   int curr = 1;
@@ -78,17 +82,44 @@ static void SwapPairs(std::vector<int>::iterator it, int sig_mem) {
   for (int i = 0; i < sig_mem; i++)
     std::iter_swap(it - i, it + sig_mem - i);
 }
-
+// static std::vector<int>::iterator BSearch(std::vector<int>::iterator first,
+//                                           std::vector<int>::iterator last,
+//                                           int value, int sig_mem, int len) {
+//   std::vector<int>::iterator low = first + (sig_mem - 1);
+//   std::vector<int>::iterator high = last + (sig_mem - 1);
+//   std::vector<int>::iterator mid = low + (len / 2 + sig_mem - 1);
+//   for (int i = 0; i < len; i++) {
+//     if (AisBiggerOrEqualThanB(*mid, value))
+// 			{
+//
+// 			}
+//   }
+// }
+// 7 8 9    11
+//
+static std::vector<int>::iterator
+DetermineInsertionPos(std::vector<int>::iterator first,
+                      std::vector<int>::iterator last, int value, int sig_mem,
+                      int len) {
+  std::vector<int>::iterator mid = first + (len / 2 + sig_mem - 1);
+  while (first != last) {
+    if (AisBiggerOrEqualThanB(*mid, value)) {
+    }
+    first += sig_mem;
+  }
+}
+// 1 2  3 4  5 6  7 8      3 3
 static void Insertion(std::vector<int> &main, std::vector<int> &pend,
                       int sig_mem) {
   if (pend.empty())
     return;
   int leftovers = pend.size() % sig_mem;
   std::vector<int> insertionmap = GenJacobsSec(pend.size() / sig_mem);
-  std::vector<int>::iterator low = main.begin();
+  std::vector<int>::iterator low = main.begin() + (sig_mem - 1);
   for (int i = 1; i < insertionmap.size(); i++) {
     std::vector<int>::iterator high = low + (insertionmap[i] - 1) * sig_mem;
     for (int y = insertionmap[i]; y != insertionmap[i - 1]; y--) {
+
       // remeber! y is position NOT INDEX, always access with y - 1
     }
   }
