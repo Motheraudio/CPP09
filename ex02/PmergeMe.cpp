@@ -101,12 +101,16 @@ static std::vector<int>::iterator
 DetermineInsertionPos(std::vector<int>::iterator first,
                       std::vector<int>::iterator last, int value, int sig_mem,
                       int len) {
-  std::vector<int>::iterator mid = first + (len / 2 + sig_mem - 1);
-  while (first != last) {
-    if (AisBiggerOrEqualThanB(*mid, value)) {
-    }
-    first += sig_mem;
+  while (len > 0) {
+    int half = len / 2;
+    std::vector<int>::iterator mid = first + half * sig_mem;
+    if (AisBiggerThanB(value, *(mid + sig_mem - 1))) {
+      first = mid + sig_mem;
+      len -= half + 1;
+    } else
+      len = half;
   }
+  return first;
 }
 // 1 2  3 4  5 6  7 8      3 3
 static void Insertion(std::vector<int> &main, std::vector<int> &pend,
