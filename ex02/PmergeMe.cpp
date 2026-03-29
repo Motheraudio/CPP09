@@ -17,10 +17,6 @@ static bool AisBiggerOrEqualThanB(int a, const int b) {
   g_comparisons++;
   return (a >= b);
 }
-static bool CompOrder(const int &a, const int &b) {
-  g_comparisons++;
-  return (a < b);
-}
 /******************************/
 std::vector<int> GenJacobsSec(int elements) {
   int curr = 1;
@@ -104,15 +100,15 @@ DetermineInsertionPos(std::vector<int>::iterator first,
   while (len > 0) {
     int half = len / 2;
     std::vector<int>::iterator mid = first + half * sig_mem;
-    if (AisBiggerThanB(value, *(mid + sig_mem - 1))) {
-      first = mid + sig_mem;
+    if (AisBiggerOrEqualThanB(value, *mid)) {
+      first = mid;
       len -= half + 1;
     } else
       len = half;
   }
-  return first;
+  return first + 1; // to return where to emplace stuff
 }
-// 1 2  3 4  5 6  7 8      3 3
+// 1 2  3 4  5 6        3 3
 static void Insertion(std::vector<int> &main, std::vector<int> &pend,
                       int sig_mem) {
   if (pend.empty())
@@ -122,15 +118,26 @@ static void Insertion(std::vector<int> &main, std::vector<int> &pend,
   std::vector<int>::iterator low = main.begin() + (sig_mem - 1);
   for (int i = 1; i < insertionmap.size(); i++) {
     std::vector<int>::iterator high = low + (insertionmap[i] - 1) * sig_mem;
+    std::vector<int>::iterator saved_high = high;
     for (int y = insertionmap[i]; y != insertionmap[i - 1]; y--) {
-
-      // remeber! y is position NOT INDEX, always access with y - 1
+      std::vector<int>::iterator insertpos = DetermineInsertionPos(
+          low, high, *pend.begin(), sig_mem, pend.size() / sig_mem);
+      main.insert(insertpos, pend.begin(), pend.begin() + sig_mem - 1);
+      std::cout << y << ": " << *insertpos << std::endl;
+      pend.erase(pend.begin(), pend.begin() + sig_mem - 1);
+      high -= sig_mem;
     }
+    low = saved_high;
+  }
+  while (leftovers != 0) {
+    std::vector<int>::iterator insertpos_l = DetermineInsertionPos(
+        main.begin(), main.end(), *pend.begin(), 1, pend.size());
+    main.insert(insertpos_l, *pend.begin());
+    pend.erase(pend.begin());
+    leftovers--;
   }
   // std::vector<int>::iterator high = main.begin() + 2 * sig_mem;
   // SKIP index 0, already inserted on creation
-
-  PrintVec(insertionmap);
 }
 static void RecSort(std::vector<int> &v, int sig_mem) {
   std::vector<int>::iterator it = v.begin() + (sig_mem - 1);
@@ -155,7 +162,7 @@ static void RecSort(std::vector<int> &v, int sig_mem) {
   std::vector<int> main;
   std::vector<int> pend;
   CreateSeqs(v, pend, main, sig_mem);
-  Insertion(pend, main, sig_mem);
+  Insertion(main, pend, sig_mem);
   v = main; // i actually need to insert the carry on
   // std::cout << g_comparisons << std::endl;
   // PrintVec(v);
@@ -177,6 +184,7 @@ void PmergeMe::SortAll(std::string args) {
   }
   RecSort(v, 1);
   std::cout << g_comparisons << std::endl;
+  PrintVec(v);
   // Sortdq
   // print
 }
