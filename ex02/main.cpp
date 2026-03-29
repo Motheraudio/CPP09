@@ -10,6 +10,10 @@ int main(int argc, char **argv) {
     args += argv[i];
     args += " ";
   }
-  std::cout << args << std::endl;
-  PmergeMe::SortAll(args);
+  try {
+
+    PmergeMe::SortAll(args);
+  } catch (std::exception &e) {
+    std::cout << e.what() << std::endl;
+  }
 }
