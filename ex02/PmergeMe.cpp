@@ -66,33 +66,13 @@ static void CreateSeqs(std::vector<int> &v, std::vector<int> &pend,
     pend.push_back(v[i]);
     i++;
   }
-  // std::cout << "MAIN: ";
-  // PrintVec(main);
-  // std::cout << "PEND: ";
-  // PrintVec(pend);
 }
-// sig_mem: offset to the significant member of a pair to compare for recursion
-// call with sig_mem=1 first time
 
 static void SwapPairs(std::vector<int>::iterator it, int sig_mem) {
   for (int i = 0; i < sig_mem; i++)
     std::iter_swap(it - i, it + sig_mem - i);
 }
-// static std::vector<int>::iterator BSearch(std::vector<int>::iterator first,
-//                                           std::vector<int>::iterator last,
-//                                           int value, int sig_mem, int len) {
-//   std::vector<int>::iterator low = first + (sig_mem - 1);
-//   std::vector<int>::iterator high = last + (sig_mem - 1);
-//   std::vector<int>::iterator mid = low + (len / 2 + sig_mem - 1);
-//   for (int i = 0; i < len; i++) {
-//     if (AisBiggerOrEqualThanB(*mid, value))
-// 			{
-//
-// 			}
-//   }
-// }
-// 7 8 9    11
-//
+
 static std::vector<int>::iterator
 DetermineInsertionPos(std::vector<int>::iterator first,
                       std::vector<int>::iterator last, int value, int sig_mem,
@@ -101,73 +81,105 @@ DetermineInsertionPos(std::vector<int>::iterator first,
     int half = len / 2;
     std::vector<int>::iterator mid = first + half * sig_mem;
     if (AisBiggerOrEqualThanB(value, *mid)) {
-      first = mid;
+      first = mid + sig_mem;
       len -= half + 1;
     } else
       len = half;
   }
-  return first + 1; // to return where to emplace stuff
+  return first - (sig_mem - 1);
 }
-// 1 2  3 4  5 6        3 3
+
 static void Insertion(std::vector<int> &main, std::vector<int> &pend,
                       int sig_mem) {
   if (pend.empty())
     return;
   int leftovers = pend.size() % sig_mem;
-  std::vector<int> insertionmap = GenJacobsSec(pend.size() / sig_mem);
-  std::vector<int>::iterator low = main.begin() + (sig_mem - 1);
-  for (int i = 1; i < insertionmap.size(); i++) {
-    std::vector<int>::iterator high = low + (insertionmap[i] - 1) * sig_mem;
-    std::vector<int>::iterator saved_high = high;
-    for (int y = insertionmap[i]; y != insertionmap[i - 1]; y--) {
-      std::vector<int>::iterator insertpos = DetermineInsertionPos(
-          low, high, *pend.begin(), sig_mem, pend.size() / sig_mem);
-      main.insert(insertpos, pend.begin(), pend.begin() + sig_mem - 1);
-      std::cout << y << ": " << *insertpos << std::endl;
-      pend.erase(pend.begin(), pend.begin() + sig_mem - 1);
-      high -= sig_mem;
+  int n_pend = pend.size() / sig_mem;
+  if (n_pend == 0) { // just insert at end no pend blocks, lower rec will do
+    while (!pend.empty()) {
+      main.push_back(pend[0]);
+      pend.erase(pend.begin());
     }
-    low = saved_high;
+    return;
   }
-  while (leftovers != 0) {
-    std::vector<int>::iterator insertpos_l = DetermineInsertionPos(
-        main.begin(), main.end(), *pend.begin(), 1, pend.size());
-    main.insert(insertpos_l, *pend.begin());
+  int n_paired = (int)main.size() / sig_mem - 2; // - a1 and b1, so -2
+  if (n_paired < 0)
+    n_paired = 0;
+  std::vector<int> pair_pos(
+      n_pend); // index in main seq of pair of k (the sig memeber!!)
+  for (int k = 0; k < n_pend; k++) {
+    if (k < n_paired)
+      pair_pos[k] = (k + 2) * sig_mem + (sig_mem - 1); // search until here
+    else
+      pair_pos[k] = (int)main.size() - 1; // search everything
+  }
+  std::vector<int> jacob = GenJacobsSec(n_pend);
+  std::vector<int> order;
+  std::vector<bool> done(n_pend, false);
+  for (size_t i = 1; i < jacob.size(); i++) {
+    int jval = std::min(jacob[i], n_pend + 1); // jacobsthal number or maximum
+    int prev = jacob[i - 1];
+    for (int y = jval; y > prev; y--) {
+      int pb = y - 2; // b1 was inserted on seqgen
+      if (pb >= 0 && pb < n_pend && !done[pb]) {
+        order.push_back(pb);
+        done[pb] = true;
+      }
+    }
+    if (jval >= n_pend + 1)
+      break;
+  }
+  for (int k = 0; k < n_pend; k++) {
+    if (!done[k])
+      order.push_back(k); // order not done? push at the end
+  }
+  for (size_t o = 0; o < order.size(); o++) {
+    int idx = order[o];
+    int pend_start = idx * sig_mem;
+    int value = pend[pend_start + sig_mem - 1];
+    int high_idx = pair_pos[idx];
+    int low_idx = sig_mem - 1;
+    int len = ((high_idx - low_idx) / sig_mem) + 1;
+    std::vector<int>::iterator insertpos = DetermineInsertionPos(
+        main.begin() + low_idx, main.begin() + high_idx, value, sig_mem, len);
+    int insert_at = insertpos - main.begin(); // gives index
+    main.insert(main.begin() + insert_at, pend.begin() + pend_start,
+                pend.begin() + pend_start + sig_mem);
+    for (int k = 0; k < n_pend; k++) {
+      if (pair_pos[k] >= insert_at)
+        pair_pos[k] += sig_mem;
+    }
+  }
+  for (int k = n_pend - 1; k >= 0; k--)
+    pend.erase(pend.begin() + k * sig_mem,
+               pend.begin() + k * sig_mem + sig_mem);
+  while (!pend.empty()) {
+    main.push_back(pend[0]);
     pend.erase(pend.begin());
-    leftovers--;
   }
-  // std::vector<int>::iterator high = main.begin() + 2 * sig_mem;
-  // SKIP index 0, already inserted on creation
 }
+
 static void RecSort(std::vector<int> &v, int sig_mem) {
   std::vector<int>::iterator it = v.begin() + (sig_mem - 1);
   unsigned int i = 0;
-  // std::cout << "BEFORE, with sig_mem = " << sig_mem << std::endl;
   while (i != v.size() / (2 * sig_mem) && it + sig_mem != v.end()) {
     if (AisBiggerThanB(*it, *(it + sig_mem)))
       SwapPairs(it, sig_mem);
-    // PrintVec(v);
     it += sig_mem * 2;
     i++;
   }
-  // PrintVec(v);
-  // std::cout << "AFTER, with sig_mem = " << sig_mem << std::endl;
-  // PrintVec(v);
   if (i == 0)
     return;
-  // PrintVec(pend);
-  // PrintVec(main);
-  // if (!pend.empty())
-  RecSort(v, sig_mem * 2); // or the v instead of main? we'll see
+  RecSort(v, sig_mem * 2);
   std::vector<int> main;
   std::vector<int> pend;
   CreateSeqs(v, pend, main, sig_mem);
+  main.reserve(main.size() + pend.size());
   Insertion(main, pend, sig_mem);
-  v = main; // i actually need to insert the carry on
-  // std::cout << g_comparisons << std::endl;
-  // PrintVec(v);
+  v = main;
   return;
 }
+
 void PmergeMe::SortAll(std::string args) {
   std::string token;
   std::vector<int> v;
@@ -185,6 +197,4 @@ void PmergeMe::SortAll(std::string args) {
   RecSort(v, 1);
   std::cout << g_comparisons << std::endl;
   PrintVec(v);
-  // Sortdq
-  // print
 }
