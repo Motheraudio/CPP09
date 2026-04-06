@@ -6,21 +6,27 @@
 #include <string.h>
 BitcoinExchange::BitcoinExchange() {}
 
-BitcoinExchange::BitcoinExchange(char *resolve) {
-  try {
+BitcoinExchange::BitcoinExchange(char *resolve)
+{
+  try
+  {
     this->_Cdb = createMap();
     this->_Cresolve = createMap(resolve);
-  } catch (std::exception) {
+  }
+  catch (std::exception &e)
+  {
     throw;
   }
 }
-BitcoinExchange::BitcoinExchange(const BitcoinExchange &other) {
+BitcoinExchange::BitcoinExchange(const BitcoinExchange &other)
+{
   *this = other;
 }
 
 BitcoinExchange::~BitcoinExchange() {}
 
-BitcoinExchange &BitcoinExchange::operator=(const BitcoinExchange &obj) {
+BitcoinExchange &BitcoinExchange::operator=(const BitcoinExchange &obj)
+{
   if (this == &obj)
     return (*this);
   this->_Cdb = obj._Cdb;
@@ -28,11 +34,14 @@ BitcoinExchange &BitcoinExchange::operator=(const BitcoinExchange &obj) {
   return (*this);
 }
 /*                                      */
-static bool hasValidSeparators(std::string date) {
+static bool hasValidSeparators(std::string date)
+{
   size_t spaces = 0;
   size_t minuses = 0;
-  for (int i = 0; date[i]; i++) {
-    if (date[i] == ' ') {
+  for (int i = 0; date[i]; i++)
+  {
+    if (date[i] == ' ')
+    {
       spaces++;
       if (date[i + 1] != '\0')
         return (false);
@@ -46,13 +55,15 @@ static bool hasValidSeparators(std::string date) {
     return (true);
 }
 
-static bool isCalendarAccurate(int year, int month, int day) {
+static bool isCalendarAccurate(int year, int month, int day)
+{
   // std::cout << year << "-" << month << "-" << day << std::endl;
   if (year < 2009 || month <= 0 || month > 12 || day <= 0 || day > 31)
     return (false);
   if (year == 2009 && month == 1 && day == 1)
     return (false);
-  if (month == 2 && day == 29) {
+  if (month == 2 && day == 29)
+  {
     if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
       return (true);
     else
@@ -63,7 +74,8 @@ static bool isCalendarAccurate(int year, int month, int day) {
   return (true);
 }
 
-static bool isValidDate(const std::string &date) {
+static bool isValidDate(const std::string &date)
+{
   if (!hasValidSeparators(date))
     return (false);
   char *copy = new char[date.length() + 1];
@@ -84,7 +96,8 @@ static bool isValidDate(const std::string &date) {
   return false;
 }
 
-static std::string isValidNumber(std::string input) {
+static std::string isValidNumber(std::string input)
+{
   if (input.empty() || input[0] != ' ')
     return ("Error: Bad input ->" + input);
   char *copy = new char[input.length() + 1];
@@ -102,7 +115,8 @@ static std::string isValidNumber(std::string input) {
 }
 /*														*/
 
-std::map<std::string, std::string> BitcoinExchange::createMap() {
+std::map<std::string, std::string> BitcoinExchange::createMap()
+{
   std::ifstream db("data.csv");
   std::string key;
   std::string value;
@@ -114,7 +128,8 @@ std::map<std::string, std::string> BitcoinExchange::createMap() {
     cdb[key] = value;
   return (cdb);
 }
-std::map<std::string, std::string> BitcoinExchange::createMap(char *resolve) {
+std::map<std::string, std::string> BitcoinExchange::createMap(char *resolve)
+{
   std::ifstream rdb(resolve);
   std::string key;
   std::string value;
@@ -128,25 +143,30 @@ std::map<std::string, std::string> BitcoinExchange::createMap(char *resolve) {
     crdb[key] = value;
   return (crdb);
 }
-void BitcoinExchange::printMap() {
+void BitcoinExchange::printMap()
+{
   std::map<std::string, std::string>::iterator it;
   std::map<std::string, std::string>::iterator ite;
   it = this->_Cdb.begin();
   ite = this->_Cdb.end();
   std::cout << "date,exchange_rate" << std::endl;
-  while (it != ite) {
+  while (it != ite)
+  {
     std::cout << it->first << "," << it->second << std::endl;
     it++;
   }
 }
-void BitcoinExchange::evaluateEntries() {
+void BitcoinExchange::evaluateEntries()
+{
   std::map<std::string, std::string>::iterator rit;
   std::map<std::string, std::string>::iterator rite;
   rit = this->_Cresolve.begin();
   rite = this->_Cresolve.end();
   std::string out;
-  while (rit != rite) {
-    if (!isValidDate(rit->first)) {
+  while (rit != rite)
+  {
+    if (!isValidDate(rit->first))
+    {
       std::cout << "Error: Bad input -> " << rit->first << std::endl;
       rit++;
       continue;
@@ -154,7 +174,8 @@ void BitcoinExchange::evaluateEntries() {
     out = isValidNumber(rit->second);
     if (out != rit->second)
       std::cout << out << std::endl;
-    else {
+    else
+    {
       std::map<std::string, std::string>::iterator locate =
           this->_Cdb.lower_bound(rit->first);
       if (strtol(rit->first.substr(0, rit->first.find("-")).c_str(), NULL, 10) >
@@ -170,7 +191,8 @@ void BitcoinExchange::evaluateEntries() {
                   << std::endl;
       else if (locate == _Cdb.begin())
         std::cout << "Error: Bad input -> " << rit->first << std::endl;
-      else {
+      else
+      {
         locate--;
         std::cout << rit->first << "-> "
                   << strtod(locate->second.c_str(), NULL) *
