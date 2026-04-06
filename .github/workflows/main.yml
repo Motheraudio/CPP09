@@ -1,0 +1,23 @@
+name: Check Compilation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ex00
+        run: make -C ex00
+
+      - name: Build ex01
+        run: make -C ex01
+
+      - name: Build ex02
+        run: make -C ex02
