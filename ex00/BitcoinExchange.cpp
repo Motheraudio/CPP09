@@ -13,7 +13,7 @@ BitcoinExchange::BitcoinExchange(char *resolve)
     this->_Cdb = createMap();
     this->_Cresolve = createMap(resolve);
   }
-  catch (std::exception)
+  catch (std::exception &e)
   {
     throw;
   }
