@@ -379,7 +379,7 @@ void PmergeMe::SortAll(std::string args) {
   } catch (std::exception &e) {
     throw;
   }
-  // std::cout << g_comparisons << std::endl;
-  // PrintVec(v);
-  // Printdq(dq);
+  std::cout << g_comparisons / 2 << std::endl;
+  //  PrintVec(v);
+  //  Printdq(dq);
 }
