@@ -118,7 +118,7 @@ static void Insertion(std::vector<int> &main, std::vector<int> &pend,
     if (k < n_paired)
       pair_pos[k] = (k + 2) * sig_mem + (sig_mem - 1); // search until here
     else
-      pair_pos[k] = (int)main.size() - 1; // search everything
+      pair_pos[k] = (int)main.size() - 1 + sig_mem; // search everything
   }
   std::vector<int> jacob = GenJacobsSec(n_pend);
   std::vector<int> order;
@@ -148,7 +148,7 @@ static void Insertion(std::vector<int> &main, std::vector<int> &pend,
     int low_idx = sig_mem - 1;
     int len = ((high_idx - low_idx) / sig_mem) + 1;
     std::vector<int>::iterator insertpos =
-        DetermineInsertionPos(main.begin() + low_idx, value, sig_mem, len);
+        DetermineInsertionPos(main.begin() + low_idx, value, sig_mem, len - 1);
     int insert_at = insertpos - main.begin(); // gives index
     main.insert(main.begin() + insert_at, pend.begin() + pend_start,
                 pend.begin() + pend_start + sig_mem);
@@ -268,7 +268,7 @@ static void Insertion_dq(std::deque<int> &main, std::deque<int> &pend,
     if (k < n_paired)
       pair_pos[k] = (k + 2) * sig_mem + (sig_mem - 1); // search until here
     else
-      pair_pos[k] = (int)main.size() - 1; // search everything
+      pair_pos[k] = (int)main.size() - 1 + sig_mem; // search everything
   }
   std::deque<int> jacob = GenJacobsSec_dq(n_pend);
   std::deque<int> order;
@@ -297,8 +297,8 @@ static void Insertion_dq(std::deque<int> &main, std::deque<int> &pend,
     int high_idx = pair_pos[idx];
     int low_idx = sig_mem - 1;
     int len = ((high_idx - low_idx) / sig_mem) + 1;
-    std::deque<int>::iterator insertpos =
-        DetermineInsertionPos_dq(main.begin() + low_idx, value, sig_mem, len);
+    std::deque<int>::iterator insertpos = DetermineInsertionPos_dq(
+        main.begin() + low_idx, value, sig_mem, len - 1);
     int insert_at = insertpos - main.begin(); // gives index
     main.insert(main.begin() + insert_at, pend.begin() + pend_start,
                 pend.begin() + pend_start + sig_mem);
